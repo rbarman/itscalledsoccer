@@ -348,15 +348,21 @@ class AmericanSoccerAnalysis:
         ids: Union[str, List[str], None] = None,
         names: Union[str, List[str], None] = None,
     ) -> pd.DataFrame:
-        """Get information associated with stadia
+        """
+        Get information associated with stadia.
 
-        :param leagues: league abbreviation or a list of league abbreviations
-        :param ids: a single stadium id or a list of stadia ids (optional)
-        :param names: a single stadium name or a list of stadia names (optional)
-        :returns: Dataframe
+        :param leagues: League abbreviation or a list of league abbreviations.
+        :type leagues: Union[str, List[str], None]
+        :param ids: A single stadium id or a list of stadia ids (optional).
+        :type ids: Union[str, List[str], None]
+        :param names: A single stadium name or a list of stadia names (optional).
+        :type names: Union[str, List[str], None]
+        :return: DataFrame containing the stadia information.
+        :rtype: pd.DataFrame
         """
         stadia = self._filter_entity(self.stadia, "stadium", leagues, ids, names)
         return stadia
+
 
     def get_referees(
         self,
