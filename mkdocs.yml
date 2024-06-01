@@ -39,3 +39,7 @@ markdown_extensions:
 plugins:
   - search
   - mkdocstrings
+    handlers:
+      python:
+        rendering:
+          docstring_style: sphinx
