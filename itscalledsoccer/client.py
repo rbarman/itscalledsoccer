@@ -25,6 +25,7 @@ class AmericanSoccerAnalysis:
 
         :param proxies: A dictionary containing proxy mappings, see https://docs.python-requests.org/en/latest/user/advanced/#proxies
         :param logging_level: A string representing the logging level of the logger
+        :param lazy_load: A boolean indicating whether to lazy load all entities on initialization
         """
         SESSION = requests.session()
         if proxies:
