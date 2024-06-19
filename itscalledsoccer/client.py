@@ -384,6 +384,8 @@ class AmericanSoccerAnalysis:
         :param names: a single referee name or a list of referee names (optional)
         :returns: Dataframe
         """
+        if self.referees is None:
+            self.referees: pd.DataFrame = self._get_entity("referee")
         referees = self._filter_entity(self.referees, "referee", leagues, ids, names)
         return referees
 
@@ -400,6 +402,8 @@ class AmericanSoccerAnalysis:
         :param names: a single referee name or a list of referee names (optional)
         :returns: Dataframe
         """
+        if self.managers is None:
+            self.managers: pd.DataFrame = self._get_entity("manager")
         managers = self._filter_entity(self.managers, "manager", leagues, ids, names)
         return managers
 
@@ -416,6 +420,8 @@ class AmericanSoccerAnalysis:
         :param names: a single team name or a list of team names (optional)
         :returns: Dataframe
         """
+        if self.teams is None:
+            self.teams: pd.DataFrame = self._get_entity("team")
         teams = self._filter_entity(self.teams, "team", leagues, ids, names)
         return teams
 
@@ -432,6 +438,8 @@ class AmericanSoccerAnalysis:
         :param names: a single player name or a list of player names (optional)
         :returns: Dataframe
         """
+        if self.players is None:
+            self.players: pd.DataFrame = self._get_entity("player")
         players = self._filter_entity(self.players, "player", leagues, ids, names)
         return players
 
