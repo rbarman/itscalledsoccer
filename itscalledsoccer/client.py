@@ -19,7 +19,7 @@ class AmericanSoccerAnalysis:
     LOGGER = getLogger(__name__)
 
     def __init__(
-        self, proxies: Optional[dict] = None, logging_level: Optional[str] = "WARNING"
+        self, proxies: Optional[dict] = None, logging_level: Optional[str] = "WARNING", lazy_load: Optional[bool] = True
     ) -> None:
         """Class constructor
 
@@ -45,11 +45,21 @@ class AmericanSoccerAnalysis:
 
         self.session = CACHE_SESSION
         self.base_url = self.BASE_URL
-        self.players = self._get_entity("player")
-        self.teams = self._get_entity("team")
-        self.stadia = self._get_entity("stadia")
-        self.managers = self._get_entity("manager")
-        self.referees = self._get_entity("referee")
+        self.lazy_load = lazy_load
+        if self.lazy_load:
+            print("Lazy loading all entities")
+            self.players = None
+            self.teams = None
+            self.stadia = None
+            self.managers = None
+            self.referees = None
+        else:
+            print("Loading all entities")
+            self.players = self._get_entity("player")
+            self.teams = self._get_entity("team")
+            self.stadia = self._get_entity("stadia")
+            self.managers = self._get_entity("manager")
+            self.referees = self._get_entity("referee")            
         print("Finished initializing client")
 
     def _get_entity(self, type: str) -> pd.DataFrame:
@@ -67,6 +77,7 @@ class AmericanSoccerAnalysis:
             resp_df = self._execute_query(url, {})
             resp_df = resp_df.assign(competition=league)
             df = pd.concat([df, resp_df], ignore_index=True)
+        print(f"returned df for {plural_type} has shape {df.shape}")
         return df
 
     def _convert_name_to_id(self, type: str, name: str) -> str:
@@ -355,6 +366,8 @@ class AmericanSoccerAnalysis:
         :param names: a single stadium name or a list of stadia names (optional)
         :returns: Dataframe
         """
+        if self.stadia is None:
+            self.stadia: pd.DataFrame = self._get_entity("stadia")
         stadia = self._filter_entity(self.stadia, "stadium", leagues, ids, names)
         return stadia
 
