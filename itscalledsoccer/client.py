@@ -8,6 +8,9 @@ from cachecontrol import CacheControl
 from cachecontrol.heuristics import ExpiresAfter
 from rapidfuzz import fuzz, process
 
+from itscalledsoccer import models as models
+from pydantic import ValidationError
+
 
 class AmericanSoccerAnalysis:
     """Wrapper around the ASA Shiny API"""
@@ -17,9 +20,13 @@ class AmericanSoccerAnalysis:
     LEAGUES = ["nwsl", "mls", "uslc", "usl1", "nasl", "mlsnp"]
     MAX_API_LIMIT = 1000
     LOGGER = getLogger(__name__)
+    ENTITY_TO_MODEL = {"managers": models.Managers}
 
     def __init__(
-        self, proxies: Optional[dict] = None, logging_level: Optional[str] = "WARNING", lazy_load: Optional[bool] = True
+        self,
+        proxies: Optional[dict] = None,
+        logging_level: Optional[str] = "WARNING",
+        lazy_load: Optional[bool] = True,
     ) -> None:
         """Class constructor
 
@@ -48,6 +55,7 @@ class AmericanSoccerAnalysis:
         self.session = CACHE_SESSION
         self.base_url = self.BASE_URL
         self.lazy_load = lazy_load
+        self.entity_to_model = self.ENTITY_TO_MODEL
 
         self.players: DataFrame = None
         self.teams: DataFrame = None
@@ -56,9 +64,13 @@ class AmericanSoccerAnalysis:
         self.referees: DataFrame = None
 
         if self.lazy_load:
-            self.LOGGER.info("Lazy loading enabled. Initializing client without entity data.")
+            self.LOGGER.info(
+                "Lazy loading enabled. Initializing client without entity data."
+            )
         else:
-            self.LOGGER.info("Lazy loading disabled. Initializing client with entity data.")
+            self.LOGGER.info(
+                "Lazy loading disabled. Initializing client with entity data."
+            )
             self.players = self._get_entity("player")
             self.teams = self._get_entity("team")
             self.stadia = self._get_entity("stadia")
@@ -286,6 +298,20 @@ class AmericanSoccerAnalysis:
 
         return response
 
+    def _validate_response_schema(self, entity: str, json_response: str) -> None:
+        model = self.entity_to_model.get(entity, None)
+        if model:
+            self.LOGGER.info(f"Validating response for {entity} with model {model}")
+            try:
+                _ = model.model_validate_json(json_response)
+            except ValidationError as e:
+                self.LOGGER.info(f"Validation error: {e}")
+                raise SystemExit(1)
+        else:
+            self.LOGGER.info(
+                f"Skipping validation for {entity} as no corresponding model is found."
+            )
+
     def _single_request(
         self, url: str, params: Dict[str, Union[str, List[str], None]]
     ) -> DataFrame:
@@ -300,7 +326,12 @@ class AmericanSoccerAnalysis:
         """
         response = self.session.get(url=url, params=params)
         response.raise_for_status()
-        resp_df = read_json(json.dumps(response.json()))
+        json_response = json.dumps(response.json())
+
+        entity = url.split("/")[-1]
+        self._validate_response_schema(entity, json_response)
+
+        resp_df = read_json(json_response)
         return resp_df
 
     def _get_stats(
@@ -490,7 +521,7 @@ class AmericanSoccerAnalysis:
             DataFrame_
         """
         if self.players is None:
-            self.players = self._get_entity("player") 
+            self.players = self._get_entity("player")
         players = self._filter_entity(self.players, "player", leagues, ids, names)
         return players
 
