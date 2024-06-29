@@ -29,7 +29,7 @@ dependencies = [
   "CacheControl>=0.13.1",
   "rapidfuzz>=3.2.0",
   "pandas>=2.0.3",
-  "pydantic>2.7.4",
+  "pydantic>=2.7.4",
 ]
 version = "1.2.0"
 
