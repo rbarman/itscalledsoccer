@@ -7,6 +7,7 @@ import requests
 from cachecontrol import CacheControl
 from cachecontrol.heuristics import ExpiresAfter
 from rapidfuzz import fuzz, process
+from io import StringIO
 
 from itscalledsoccer import models as models
 from pydantic import ValidationError
@@ -437,8 +438,8 @@ class AmericanSoccerAnalysis:
             DataFrame
         """
         if self.stadia is None:
-            self.stadia = self._get_entity("stadium")
-        stadia = self._filter_entity(self.stadia, "stadium", leagues, ids, names)
+            self.stadia = self._get_entity("stadia")
+        stadia = self._filter_entity(self.stadia, "stadia", leagues, ids, names)
         return stadia
 
     def get_referees(
