@@ -21,7 +21,7 @@ class AmericanSoccerAnalysis:
     LEAGUES = ["nwsl", "mls", "uslc", "usl1", "nasl", "mlsnp"]
     MAX_API_LIMIT = 1000
     LOGGER = getLogger(__name__)
-    ENTITY_TO_MODEL = {"managers": models.Managers}
+    ENTITY_TO_MODEL = {"managers": models.Managers, "referees": models.Referees}
 
     def __init__(
         self,
