@@ -332,7 +332,7 @@ class AmericanSoccerAnalysis:
         entity = url.split("/")[-1]
         self._validate_response_schema(entity, json_response)
 
-        resp_df = read_json(json_response)
+        resp_df = read_json(StringIO(json_response))
         return resp_df
 
     def _get_stats(
