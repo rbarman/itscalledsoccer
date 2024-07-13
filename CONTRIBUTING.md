@@ -237,3 +237,5 @@ We aim to follow [Conventional Commits](https://www.conventionalcommits.org/en/v
 ## Attribution
 
 This guide is based on the **contributing-gen**. [Make your own](https://github.com/bttger/contributing-gen)!
+
+Are you reading this?
