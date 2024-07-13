@@ -37,6 +37,12 @@ class TestClient:
         file = Path(path, f"./mocks/{func_name}_payload.json")
         return read_json(file)
 
+    def load_mock_data_as_json(self, func_name: str):
+        path = Path(__file__).parent
+        file = Path(path, f"./mocks/{func_name}_payload.json")
+        with open(file, "r", encoding="utf-8") as f:
+            return f.read()
+
     def test_get_player_xgoals(self, init_client):
         self.client = init_client
         with patch(
@@ -223,3 +229,84 @@ class TestClient:
             assert games is not None
             assert isinstance(games, DataFrame)
             assert len(games) >= 2
+
+    ###########################
+    # Schema validation tests
+    ###########################
+    def test_managers_schema(self):
+        self.client = AmericanSoccerAnalysis()
+        self.client._validate_response_schema(
+            entity="managers", json_response=self.load_mock_data_as_json("managers")
+        )
+
+    def test_referees_schema(self):
+        self.client = AmericanSoccerAnalysis()
+        self.client._validate_response_schema(
+            entity="referees", json_response=self.load_mock_data_as_json("referees")
+        )
+
+    def test_stadia_schema(self):
+        self.client = AmericanSoccerAnalysis()
+        self.client._validate_response_schema(
+            entity="stadia", json_response=self.load_mock_data_as_json("stadia")
+        )
+
+    def test_teams_schema(self):
+        self.client = AmericanSoccerAnalysis()
+        self.client._validate_response_schema(
+            entity="teams", json_response=self.load_mock_data_as_json("teams")
+        )
+
+    def test_players_schema(self):
+        self.client = AmericanSoccerAnalysis()
+        self.client._validate_response_schema(
+            entity="players", json_response=self.load_mock_data_as_json("players")
+        )
+
+    def test_games_schema(self):
+        self.client = AmericanSoccerAnalysis()
+        self.client._validate_response_schema(
+            entity="games", json_response=self.load_mock_data_as_json("games")
+        )
+
+    def test_get_managers_without_mock(self):
+        self.client = AmericanSoccerAnalysis()
+        managers = self.client.get_managers()
+        assert managers is not None
+        assert isinstance(managers, DataFrame)
+        assert len(managers) >= 2
+
+    def test_get_referees_without_mock(self):
+        self.client = AmericanSoccerAnalysis()
+        referees = self.client.get_referees()
+        assert referees is not None
+        assert isinstance(referees, DataFrame)
+        assert len(referees) >= 2
+
+    def test_get_stadia_without_mock(self):
+        self.client = AmericanSoccerAnalysis()
+        stadia = self.client.get_stadia()
+        assert stadia is not None
+        assert isinstance(stadia, DataFrame)
+        assert len(stadia) >= 2
+
+    def test_get_teams_without_mock(self):
+        self.client = AmericanSoccerAnalysis()
+        teams = self.client.get_teams()
+        assert teams is not None
+        assert isinstance(teams, DataFrame)
+        assert len(teams) >= 2
+
+    def test_get_players_without_mock(self):
+        self.client = AmericanSoccerAnalysis()
+        players = self.client.get_players()
+        assert players is not None
+        assert isinstance(players, DataFrame)
+        assert len(players) >= 2
+
+    def test_get_games_without_mock(self):
+        self.client = AmericanSoccerAnalysis()
+        games = self.client.get_games()
+        assert games is not None
+        assert isinstance(games, DataFrame)
+        assert len(games) >= 2

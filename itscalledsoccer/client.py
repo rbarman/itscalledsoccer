@@ -1,6 +1,6 @@
 import json
 from logging import getLevelName, getLogger
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Type
 
 from pandas import DataFrame, read_json, isnull, concat
 import requests
@@ -10,7 +10,8 @@ from rapidfuzz import fuzz, process
 from io import StringIO
 
 from itscalledsoccer import models as models
-from pydantic import ValidationError
+
+from pydantic import ValidationError, RootModel
 
 
 class AmericanSoccerAnalysis:
@@ -21,13 +22,21 @@ class AmericanSoccerAnalysis:
     LEAGUES = ["nwsl", "mls", "uslc", "usl1", "nasl", "mlsnp"]
     MAX_API_LIMIT = 1000
     LOGGER = getLogger(__name__)
-    ENTITY_TO_MODEL = {"managers": models.Managers, "referees": models.Referees}
+    ENTITY_TO_MODEL: Dict[str, Type[RootModel]] = {
+        "managers": models.Managers,
+        "referees": models.Referees,
+        "stadia": models.Stadia,
+        "teams": models.Teams,
+        "players": models.Players,
+        "games": models.Games,
+    }
 
     def __init__(
         self,
         proxies: Optional[dict] = None,
         logging_level: Optional[str] = "WARNING",
         lazy_load: Optional[bool] = True,
+        validate_schema: Optional[bool] = True,
     ) -> None:
         """Class constructor
 
@@ -35,6 +44,7 @@ class AmericanSoccerAnalysis:
             proxies (Optional[dict], optional): A dictionary containing proxy mappings, see https://docs.python-requests.org/en/latest/user/advanced/#proxies. Defaults to None.
             logging_level (Optional[str], optional): A string representing the logging level of the logger. Defaults to "WARNING".
             lazy_load (Optional[bool], optional): A boolean indicating whether to lazy load all entity data on initialization. Defaults to True.
+            validate_schema (Optional[bool], optional): A boolean indicating whether to validate the response schema after retrieving an entity from the API. Defaults to True.
         """
         SESSION = requests.session()
         if proxies:
@@ -56,6 +66,7 @@ class AmericanSoccerAnalysis:
         self.session = CACHE_SESSION
         self.base_url = self.BASE_URL
         self.lazy_load = lazy_load
+        self.validate_schema = validate_schema
         self.entity_to_model = self.ENTITY_TO_MODEL
 
         self.players: DataFrame = None
@@ -300,7 +311,7 @@ class AmericanSoccerAnalysis:
         return response
 
     def _validate_response_schema(self, entity: str, json_response: str) -> None:
-        model = self.entity_to_model.get(entity, None)
+        model: Optional[Type[RootModel]] = self.entity_to_model.get(entity, None)
         if model:
             self.LOGGER.info(f"Validating response for {entity} with model {model}")
             try:
@@ -329,8 +340,9 @@ class AmericanSoccerAnalysis:
         response.raise_for_status()
         json_response = json.dumps(response.json())
 
-        entity = url.split("/")[-1]
-        self._validate_response_schema(entity, json_response)
+        if self.validate_schema:
+            entity = url.split("/")[-1]
+            self._validate_response_schema(entity, json_response)
 
         resp_df = read_json(StringIO(json_response))
         return resp_df

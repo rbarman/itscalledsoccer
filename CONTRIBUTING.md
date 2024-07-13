@@ -202,6 +202,12 @@ ruff itscalledsoccer
 pytest
 ```
 
+To run a specific test function:
+
+```sh
+pytest .\tests\test_client.py::TestClient::test_get_managers
+```
+
 #### Open a pull request
 
 Once the tests are in good shape and the code has been linted and formatted, you're ready to open a pull request (PR). The [GitHub docs](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) provide great instructions on how to do just that.
